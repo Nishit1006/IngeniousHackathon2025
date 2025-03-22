@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load gis_data_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">{{ farmland.name }}</h1>
+                {% if not edit_mode %}
+                    <a href="?edit=true" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                        Edit Farmland
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if edit_mode %}
+                <!-- Edit Form -->
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-medium mb-2">Farm Name</label>
+                            <input type="text" id="name" name="name" value="{{ farmland.name }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label for="area" class="block text-gray-700 font-medium mb-2">Area (acres)</label>
+                            <input type="number" id="area" name="area" step="0.01" value="{{ farmland.area }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <!-- Location Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="latitude" class="block text-gray-700 font-medium mb-2">Latitude</label>
+                            <input type="number" id="latitude" name="latitude" step="0.000001" value="{{ farmland.latitude }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label for="longitude" class="block text-gray-700 font-medium mb-2">Longitude</label>
+                            <input type="number" id="longitude" name="longitude" step="0.000001" value="{{ farmland.longitude }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <!-- Soil and Irrigation -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="soil_type" class="block text-gray-700 font-medium mb-2">Soil Type</label>
+                            <select id="soil_type" name="soil_type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="clay" {% if farmland.soil_type == 'clay' %}selected{% endif %}>Clay</option>
+                                <option value="sandy" {% if farmland.soil_type == 'sandy' %}selected{% endif %}>Sandy</option>
+                                <option value="loamy" {% if farmland.soil_type == 'loamy' %}selected{% endif %}>Loamy</option>
+                                <option value="silt" {% if farmland.soil_type == 'silt' %}selected{% endif %}>Silt</option>
+                                <option value="peat" {% if farmland.soil_type == 'peat' %}selected{% endif %}>Peat</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Irrigation Facilities</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="irrigation_facilities" value="well" {% if 'well' in farmland.irrigation_source %}checked{% endif %} class="form-checkbox h-4 w-4 text-green-600">
+                                    <span class="ml-2">Well</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="irrigation_facilities" value="canal" {% if 'canal' in farmland.irrigation_source %}checked{% endif %} class="form-checkbox h-4 w-4 text-green-600">
+                                    <span class="ml-2">Canal</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="irrigation_facilities" value="rainwater" {% if 'rainwater' in farmland.irrigation_source %}checked{% endif %} class="form-checkbox h-4 w-4 text-green-600">
+                                    <span class="ml-2">Rainwater Harvesting</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex justify-end space-x-4">
+                        <a href="{% url 'gis_data:farmland_detail' farmland.id %}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-300">
+                            Cancel
+                        </a>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <!-- View Mode -->
+                <div class="space-y-6">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Farm Details</h3>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Area</dt>
+                                    <dd class="text-gray-900">{{ farmland.area }} acres</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Soil Type</dt>
+                                    <dd class="text-gray-900">{{ farmland.soil_type|title }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Irrigation Sources</dt>
+                                    <dd class="text-gray-900">{{ farmland.irrigation_source }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Location</h3>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Address</dt>
+                                    <dd class="text-gray-900">{{ farmland.address }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Coordinates</dt>
+                                    <dd class="text-gray-900">{{ farmland.latitude }}, {{ farmland.longitude }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Verification Status -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Verification Status</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    {% if farmland.is_verified %}
+                                        <span class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </span>
+                                    {% else %}
+                                        <span class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                            <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium text-gray-900">
+                                        {% if farmland.is_verified %}
+                                            Verified
+                                        {% else %}
+                                            Pending Verification
+                                        {% endif %}
+                                    </h4>
+                                    <p class="text-sm text-gray-500">
+                                        {% if farmland.is_verified %}
+                                            Verified on {{ farmland.verification_date|date:"F d, Y" }} by {{ farmland.verified_by }}
+                                        {% else %}
+                                            Your farmland details are pending verification by our team.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any additional JavaScript needed for the farmland detail page
+</script>
+{% endblock %} 
