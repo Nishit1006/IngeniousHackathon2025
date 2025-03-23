@@ -27,7 +27,7 @@ django-celery-beat==2.5.0
 
 # GIS and Data Processing
 django-leaflet==0.29.0
-gdal
+gdal==3.7.3
 numpy==1.26.3
 pandas==2.2.0
 scipy==1.12.0
