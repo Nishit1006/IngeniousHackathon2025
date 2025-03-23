@@ -1,0 +1,165 @@
+{% extends "account/base_auth.html" %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Sign Up" %}{% endblock %}
+
+{% block auth_header %}
+    Create your account and start managing your farm credit.
+{% endblock %}
+
+{% block auth_content %}
+    {% if form.errors %}
+        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <ul class="list-disc pl-5 space-y-1">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <form class="signup space-y-6" id="signup_form" method="POST" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+
+        <!-- User Type Selection -->
+        <div>
+            <label for="user_type" class="block text-sm font-medium text-gray-700">
+                {% trans "I am a" %}
+            </label>
+            <div class="mt-1">
+                <select name="user_type" id="user_type" required
+                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md {% if form.user_type.errors %}border-red-300{% endif %}">
+                    <option value="">Select your role</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="financial_institution">Financial Institution</option>
+                </select>
+                {% if form.user_type.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.user_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Username Field -->
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">
+                {% trans "Username" %}
+            </label>
+            <div class="mt-1">
+                <input type="text" name="username" id="username" autocomplete="username" required
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm {% if form.username.errors %}border-red-300{% endif %}"
+                    placeholder="Choose a username">
+                {% if form.username.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Email Field -->
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">
+                {% trans "Email" %}
+            </label>
+            <div class="mt-1">
+                <input type="email" name="email" id="email" autocomplete="email" required
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm {% if form.email.errors %}border-red-300{% endif %}"
+                    placeholder="Enter your email address">
+                {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+            <label for="password1" class="block text-sm font-medium text-gray-700">
+                {% trans "Password" %}
+            </label>
+            <div class="mt-1">
+                <input type="password" name="password1" id="password1" required
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm {% if form.password1.errors %}border-red-300{% endif %}"
+                    placeholder="Create a strong password">
+                {% if form.password1.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+                <div class="mt-1 text-sm text-gray-500">
+                    <ul class="list-disc pl-5">
+                        <li>Password must be at least 8 characters long</li>
+                        <li>Must contain at least one number and one letter</li>
+                        <li>Cannot be too similar to your personal information</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+            <label for="password2" class="block text-sm font-medium text-gray-700">
+                {% trans "Confirm Password" %}
+            </label>
+            <div class="mt-1">
+                <input type="password" name="password2" id="password2" required
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm {% if form.password2.errors %}border-red-300{% endif %}"
+                    placeholder="Confirm your password">
+                {% if form.password2.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="flex items-start">
+            <div class="flex items-center h-5">
+                <input id="terms" name="terms" type="checkbox" required
+                    class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded {% if form.terms.errors %}border-red-300{% endif %}">
+            </div>
+            <div class="ml-3 text-sm">
+                <label for="terms" class="font-medium text-gray-700">
+                    {% trans "I agree to the" %}
+                    <a href="#" class="text-green-600 hover:text-green-500">
+                        {% trans "Terms and Conditions" %}
+                    </a>
+                </label>
+                {% if form.terms.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.terms.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                {% trans "Sign Up" %}
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block auth_footer %}
+    <p class="text-gray-600">
+        {% trans "Already have an account?" %}
+        <a href="{{ login_url }}" class="font-medium text-green-600 hover:text-green-500">
+            {% trans "Sign in" %}
+        </a>
+    </p>
+{% endblock %} 

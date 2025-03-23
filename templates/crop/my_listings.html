@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}My Crop Listings - Farmer Credit Evaluation Tool{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">My Crop Listings</h1>
+                <div class="space-x-4">
+                    <a href="{% url 'crop:marketplace' %}" class="text-blue-600 hover:text-blue-800 font-medium">View Marketplace</a>
+                    <a href="{% url 'crop:create_listing' %}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                        Add New Listing
+                    </a>
+                </div>
+            </div>
+
+            {% if listings %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for listing in listings %}
+                        <div class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ listing.crop_name }}</h3>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {% if listing.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if listing.is_available %}Available{% else %}Sold{% endif %}
+                                    </span>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-gray-600">
+                                        <span class="font-medium">Quantity:</span> {{ listing.quantity }} {{ listing.unit }}
+                                    </p>
+                                    <p class="text-gray-600">
+                                        <span class="font-medium">Price:</span> ₹{{ listing.price_per_unit }}/{{ listing.unit }}
+                                    </p>
+                                    <p class="text-gray-600">
+                                        <span class="font-medium">Location:</span> {{ listing.location }}
+                                    </p>
+                                    <p class="text-gray-600">
+                                        <span class="font-medium">Contact:</span> {{ listing.contact_number }}
+                                    </p>
+                                </div>
+                                <div class="mt-4 flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">
+                                        Listed {{ listing.created_at|timesince }} ago
+                                    </span>
+                                    <div class="space-x-2">
+                                        <form action="{% url 'crop:toggle_listing' listing.pk %}" method="post" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-sm font-medium {% if listing.is_available %}text-red-600 hover:text-red-800{% else %}text-green-600 hover:text-green-800{% endif %}">
+                                                {% if listing.is_available %}Mark as Sold{% else %}Mark as Available{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">No Crop Listings Yet</h3>
+                    <p class="mt-2 text-gray-500">You haven't listed any crops for sale yet.</p>
+                    <div class="mt-6">
+                        <a href="{% url 'crop:create_listing' %}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                            Create Your First Listing
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

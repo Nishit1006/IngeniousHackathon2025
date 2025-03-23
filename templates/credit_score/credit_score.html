@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Credit Score Assessment</h1>
+                <a href="?recalculate=true" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                    Recalculate Score
+                </a>
+            </div>
+
+            {% if credit_score %}
+                <!-- Main Score Card -->
+                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+                    <div class="text-center mb-6">
+                        <div class="text-5xl font-bold {% if credit_score.final_score >= 80 %}text-green-600{% elif credit_score.final_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %} mb-2">
+                            {{ credit_score.final_score|floatformat:1 }}
+                        </div>
+                        <div class="text-lg font-medium text-gray-600">
+                            {{ credit_score.get_risk_category }}
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            Last updated: {{ credit_score.calculation_date|date:"jS F Y, g:i A" }} IST
+                        </div>
+                    </div>
+
+                    <!-- Score Components -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Land Quality -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-gray-700">Land Quality</h3>
+                                <span class="text-lg font-bold {% if credit_score.land_quality_score >= 80 %}text-green-600{% elif credit_score.land_quality_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ credit_score.land_quality_score|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                Weight: 30%
+                            </div>
+                            {% if credit_score.land_quality_score < 80 %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">Improvement Tips:</h4>
+                                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                                        {% for tip in improvement_tips.land_quality_score %}
+                                            <li>{{ tip }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Weather Risk -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-gray-700">Weather Risk</h3>
+                                <span class="text-lg font-bold {% if credit_score.weather_risk_score >= 80 %}text-green-600{% elif credit_score.weather_risk_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ credit_score.weather_risk_score|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                Weight: 25%
+                            </div>
+                            {% if credit_score.weather_risk_score < 80 %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">Improvement Tips:</h4>
+                                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                                        {% for tip in improvement_tips.weather_risk_score %}
+                                            <li>{{ tip }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Crop Yield -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-gray-700">Crop Yield</h3>
+                                <span class="text-lg font-bold {% if credit_score.crop_yield_score >= 80 %}text-green-600{% elif credit_score.crop_yield_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ credit_score.crop_yield_score|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                Weight: 20%
+                            </div>
+                            {% if credit_score.crop_yield_score < 80 %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">Improvement Tips:</h4>
+                                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                                        {% for tip in improvement_tips.crop_yield_score %}
+                                            <li>{{ tip }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Market Demand -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-gray-700">Market Demand</h3>
+                                <span class="text-lg font-bold {% if credit_score.market_demand_score >= 80 %}text-green-600{% elif credit_score.market_demand_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ credit_score.market_demand_score|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                Weight: 15%
+                            </div>
+                            {% if credit_score.market_demand_score < 80 %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">Improvement Tips:</h4>
+                                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                                        {% for tip in improvement_tips.market_demand_score %}
+                                            <li>{{ tip }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Sustainability -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-gray-700">Sustainability</h3>
+                                <span class="text-lg font-bold {% if credit_score.sustainability_score >= 80 %}text-green-600{% elif credit_score.sustainability_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ credit_score.sustainability_score|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                Weight: 10%
+                            </div>
+                            {% if credit_score.sustainability_score < 80 %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">Improvement Tips:</h4>
+                                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                                        {% for tip in improvement_tips.sustainability_score %}
+                                            <li>{{ tip }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historical Scores -->
+                {% if historical_scores %}
+                    <div class="mt-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Score History</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for score in historical_scores %}
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ score.calculation_date|date:"jS F Y, g:i A" }} IST
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm font-medium {% if score.final_score >= 80 %}text-green-600{% elif score.final_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                                    {{ score.final_score|floatformat:1 }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if score.get_risk_category == 'Low Risk' %}bg-green-100 text-green-800{% elif score.get_risk_category == 'Moderate Risk' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                    {{ score.get_risk_category }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="text-gray-500 mb-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        {% else %}
+                            No credit score available. Please add farmland and crop details to calculate your credit score.
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'gis_data:add_farmland' %}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                        Add Farmland Details
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any JavaScript for charts or interactivity here
+</script>
+{% endblock %} 

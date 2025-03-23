@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.crop_name }} - Crop Details{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h1 class="text-3xl font-bold text-gray-900">{{ listing.crop_name }}</h1>
+                        {% if listing.farmer == user %}
+                            <div class="flex space-x-4">
+                                <form action="{% url 'crop:toggle_listing' listing.pk %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-4 py-2 rounded-md {% if listing.is_available %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white font-medium transition duration-300">
+                                        {% if listing.is_available %}Mark as Sold{% else %}Reactivate Listing{% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Quantity</h3>
+                                <p class="mt-1 text-lg text-gray-900">{{ listing.quantity }} {{ listing.unit }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Price per {{ listing.unit }}</h3>
+                                <p class="mt-1 text-lg text-gray-900">₹{{ listing.price_per_unit }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Total Value</h3>
+                                <p class="mt-1 text-lg text-gray-900">₹{{ listing.quantity|multiply:listing.price_per_unit }}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Location</h3>
+                                <p class="mt-1 text-lg text-gray-900">{{ listing.location }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Listed By</h3>
+                                <p class="mt-1 text-lg text-gray-900">{{ listing.farmer.get_full_name|default:listing.farmer.username }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500">Contact Number</h3>
+                                <p class="mt-1 text-lg text-gray-900">{{ listing.contact_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if listing.description %}
+                        <div class="mt-6">
+                            <h3 class="text-sm font-medium text-gray-500">Description</h3>
+                            <p class="mt-2 text-gray-700 whitespace-pre-line">{{ listing.description }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-8 flex justify-between items-center pt-6 border-t border-gray-200">
+                        <div class="text-sm text-gray-500">
+                            Listed {{ listing.created_at|timesince }} ago
+                        </div>
+                        <div>
+                            <a href="{% url 'crop:marketplace' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                Back to Marketplace
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

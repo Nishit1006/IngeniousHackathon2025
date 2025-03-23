@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        @apply block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200;
+    }
+    .irrigation-options {
+        @apply grid grid-cols-2 gap-4 p-4 border border-gray-200 rounded-lg;
+    }
+    .irrigation-options label {
+        @apply flex items-center space-x-2 text-gray-700;
+    }
+    .irrigation-options input[type="checkbox"] {
+        @apply w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500;
+    }
+    .select-control {
+        @apply block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-green-600 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white">Register Your Farmland</h1>
+                <p class="text-green-100 mt-1">Please provide your farmland details to calculate your credit score</p>
+            </div>
+
+            <div class="p-6">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% elif message.tags == 'success' %}bg-green-100 border-green-400 text-green-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border px-4 py-3 rounded relative mb-4">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.name.id_for_label }}">
+                                Farmland Name
+                            </label>
+                            {{ form.name.errors }}
+                            <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" class="form-control" placeholder="Enter farmland name" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.area.id_for_label }}">
+                                Area (in acres)
+                            </label>
+                            {{ form.area.errors }}
+                            <input type="number" step="0.01" name="{{ form.area.name }}" id="{{ form.area.id_for_label }}" class="form-control" placeholder="Enter area in acres" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-gray-700">Location</label>
+                        <p class="text-sm text-gray-500 mb-2">Click on the map to select your farmland location or enter coordinates manually</p>
+                        
+                        <div id="map"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.latitude.id_for_label }}">
+                                    Latitude
+                                </label>
+                                {{ form.latitude.errors }}
+                                <input type="number" step="0.000001" name="{{ form.latitude.name }}" id="{{ form.latitude.id_for_label }}" class="form-control" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.longitude.id_for_label }}">
+                                    Longitude
+                                </label>
+                                {{ form.longitude.errors }}
+                                <input type="number" step="0.000001" name="{{ form.longitude.name }}" id="{{ form.longitude.id_for_label }}" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.address.id_for_label }}">
+                            Address
+                        </label>
+                        {{ form.address.errors }}
+                        <textarea name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" rows="3" class="form-control" placeholder="Enter farmland address"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="{{ form.soil_type.id_for_label }}">
+                            Soil Type
+                        </label>
+                        {{ form.soil_type.errors }}
+                        <select name="{{ form.soil_type.name }}" id="{{ form.soil_type.id_for_label }}" class="select-control">
+                            {% for value, label in form.soil_type.field.choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Irrigation Sources
+                        </label>
+                        {{ form.irrigation_source.errors }}
+                        <div class="irrigation-options">
+                            {% for value, label in form.irrigation_source.field.choices %}
+                                <label>
+                                    <input type="checkbox" name="{{ form.irrigation_source.name }}" value="{{ value }}">
+                                    <span>{{ label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="{% url 'credit_score:credit_score' %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Register Farmland
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize the map
+    var map = L.map('map').setView([20.5937, 78.9629], 5); // Default center of India
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var marker;
+
+    // Function to update marker position
+    function updateMarker(lat, lng) {
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+        map.setView([lat, lng], 13);
+    }
+
+    // Handle map clicks
+    map.on('click', function(e) {
+        document.getElementById('{{ form.latitude.id_for_label }}').value = e.latlng.lat.toFixed(6);
+        document.getElementById('{{ form.longitude.id_for_label }}').value = e.latlng.lng.toFixed(6);
+        updateMarker(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Handle manual coordinate input
+    document.getElementById('{{ form.latitude.id_for_label }}').addEventListener('change', function() {
+        var lat = parseFloat(this.value);
+        var lng = parseFloat(document.getElementById('{{ form.longitude.id_for_label }}').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            updateMarker(lat, lng);
+        }
+    });
+
+    document.getElementById('{{ form.longitude.id_for_label }}').addEventListener('change', function() {
+        var lat = parseFloat(document.getElementById('{{ form.latitude.id_for_label }}').value);
+        var lng = parseFloat(this.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            updateMarker(lat, lng);
+        }
+    });
+
+    // Try to get user's location
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            updateMarker(lat, lng);
+            document.getElementById('{{ form.latitude.id_for_label }}').value = lat.toFixed(6);
+            document.getElementById('{{ form.longitude.id_for_label }}').value = lng.toFixed(6);
+        });
+    }
+</script>
+{% endblock %} 
