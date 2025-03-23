@@ -1,3 +1,6 @@
+# most required python interpreter
+- must need python Anaconda
+  
 # Farmer Credit Evaluation Tool
 
 An alternative credit scoring system for farmers that uses non-traditional data sources like GIS data, weather forecasts, soil health metrics, and past crop yields to provide a fair and comprehensive credit assessment.
